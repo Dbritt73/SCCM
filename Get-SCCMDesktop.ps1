@@ -4,9 +4,9 @@ function Get-SCCMDesktop {
     Get computer information from SCCM
 
     .DESCRIPTION
-    Get-SCCMDesktop utilizes the ComputerInformation report built in to SCCM to gather pre-defined information about a 
-    computer. Reports are generated using Sql Server Reporting Services (SSRS), which is intpereted by Get-SCCMDesktop 
-    using invoke-webrequest and parsing the resultant XML structure for the properties of the report. 
+    Get-SCCMDesktop utilizes the ComputerInformation report built in to SCCM to gather pre-defined information about a
+    computer. Reports are generated using Sql Server Reporting Services (SSRS), which is intpereted by Get-SCCMDesktop
+    using invoke-webrequest and parsing the resultant XML structure for the properties of the report.
 
     .EXAMPLE
     Get-SCCMDesktop 'SERVER1'
@@ -36,7 +36,7 @@ function Get-SCCMDesktop {
                     Position=0)]
         [String[]]$ComputerName,
 
-        [String]$ReportUri = "http://SCCM-Database/ReportServer"
+        [String]$ReportUri = "http://SCCM-Database/ReportServer?%2fConfigMgr_SITECODE%2fHardware+-+General%2fComputer+information+for+a+specific+computer&rs:format=xml&variable="
 
     )
 
@@ -62,7 +62,7 @@ function Get-SCCMDesktop {
                     'CPU' = $XMLReport.Report.Table0.Detail_Collection.Detail.Details_Table0_Name0;
                     'IPAddresses' = $XMLReport.Report.Table0.Detail_Collection.Detail.Details_Table0_IP_Addresses0;
                     'OS' = $XMLReport.Report.Table0.Detail_Collection.Detail.Details_Table0_C0
-                    
+
                 }
 
                 $Object = New-object -typename PSObject -Property $Properties
@@ -75,7 +75,7 @@ function Get-SCCMDesktop {
 
             Write-Warning -Message "$ComputerName : $Error[0].Message"
 
-        }    
+        }
     }
 
     End {}

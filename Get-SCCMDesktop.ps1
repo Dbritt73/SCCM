@@ -31,6 +31,7 @@ function Get-SCCMDesktop {
     Param (
 
         [Parameter( Mandatory=$true,
+                    HelpMessage='Name of computer to get a report',
                     ValueFromPipeline=$True,
                     ValueFromPipelineByPropertyName=$true,
                     Position=0)]
@@ -49,33 +50,54 @@ function Get-SCCMDesktop {
             Foreach ($Computer in $ComputerName) {
 
                 $ReportServerUri = $ReportUri + $Computer
-                $iwr = invoke-webrequest -Uri $ReportServerUri -UseDefaultCredential
+                $iwr = invoke-webrequest -Uri $ReportServerUri -UseDefaultCredentials
 
                 #Regex required to scrub the XML string of any non-standard ASCII chars
-                [xml]$XMLReport = $iwr.content -replace "[^ -x7e]",""
+                [xml]$XMLReport = $iwr.content -replace '[^ -x7e]',''
 
                 $Properties = @{
 
-                    'ComputerName' = $XMLReport.Report.Table0.Detail_Collection.Detail.Details_Table0_Netbios_Name0;
-                    'UserName' = $XMLReport.Report.Table0.Detail_Collection.Detail.Details_Table0_User_Name0;
-                    'Model' = $XMLReport.Report.Table0.Detail_Collection.Detail.Details_Table0_Model0;
-                    'CPU' = $XMLReport.Report.Table0.Detail_Collection.Detail.Details_Table0_Name0;
-                    'IPAddresses' = $XMLReport.Report.Table0.Detail_Collection.Detail.Details_Table0_IP_Addresses0;
+                    'ComputerName' = $XMLReport.Report.Table0.Detail_Collection.Detail.Details_Table0_Netbios_Name0
+
+                    'UserName' = $XMLReport.Report.Table0.Detail_Collection.Detail.Details_Table0_User_Name0
+
+                    'Model' = $XMLReport.Report.Table0.Detail_Collection.Detail.Details_Table0_Model0
+
+                    'CPU' = $XMLReport.Report.Table0.Detail_Collection.Detail.Details_Table0_Name0
+
+                    'IPAddresses' = $XMLReport.Report.Table0.Detail_Collection.Detail.Details_Table0_IP_Addresses0
+
                     'OS' = $XMLReport.Report.Table0.Detail_Collection.Detail.Details_Table0_C0
 
                 }
 
                 $Object = New-object -typename PSObject -Property $Properties
                 $Object.PSObject.TypeNames.Insert(0,'SCCM.Desktop')
-                Write-Output $Object
+                Write-Output -InputObject $Object
 
             }
 
         } Catch {
 
-            Write-Warning -Message "$ComputerName : $Error[0].Message"
+            # get error record
+            [Management.Automation.ErrorRecord]$e = $_
 
+            # retrieve information about runtime error
+            $info = [PSCustomObject]@{
+
+              Exception = $e.Exception.Message
+              Reason    = $e.CategoryInfo.Reason
+              Target    = $e.CategoryInfo.TargetName
+              Script    = $e.InvocationInfo.ScriptName
+              Line      = $e.InvocationInfo.ScriptLineNumber
+              Column    = $e.InvocationInfo.OffsetInLine
+
+            }
+            
+            # output information. Post-process collected info, and log info (optional)
+            $info
         }
+        
     }
 
     End {}

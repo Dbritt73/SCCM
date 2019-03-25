@@ -5,7 +5,8 @@ Function Get-SCCMLowDiskSpace {
     drives.
 
     .DESCRIPTION
-    Add a more complete description of what the function does.
+    Get-SCCMLowDiskSpace utilizes the built-in SCCM report of low disk space base dont he specified percentage. Report
+    executed via Invoke-RestMethod.
 
     .PARAMETER CollectionID
     ID of collection in SCCM to query

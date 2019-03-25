@@ -34,7 +34,7 @@ Function Get-SCCMLowDiskSpace {
     Param (
 
         [Parameter( Mandatory=$true,
-                    HelpMessage='Name of computer(s) to query',
+                    HelpMessage='ID of Collection in SCCM',
                     ValueFromPipeline=$True,
                     ValueFromPipelineByPropertyName=$true,
                     Position=0)]
